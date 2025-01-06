@@ -1,0 +1,60 @@
+version: '2.2'
+services:
+  # RABBITMQ SERVICE 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"   # AMQ
+      - "15672:15672" # UI
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=password123
+      - RABBITMQ_DEFAULT_HOST=rabbitmq
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - rabbitmq_logs:/var/log/rabbitmq
+    networks:
+      - rabbitmq_network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  
+  # LEMONADE RABBITMQ EXPORTER SERVICE 
+  rabbitmq-exporter:
+    build:
+      context: .
+      dockerfile: Dockerfile.exporter
+    container_name: lemonade-mq-exporter
+    ports:
+      - 9125:9125
+    depends_on:
+      - rabbitmq
+    restart: unless-stopped
+    networks:
+      - rabbitmq_network
+  
+  # QUEUE AND MSG CREATOR SIMULATION 
+  rabbitmq-queue-creator-script:
+    build:
+      context: .
+      dockerfile: Dockerfile.queueCreator
+    container_name: queue-creator-script
+    ports:
+      - 9126:9126
+    depends_on:
+      - rabbitmq
+    restart: unless-stopped
+    networks:
+      - rabbitmq_network
+
+volumes:
+  rabbitmq_data:
+  rabbitmq_logs:
+
+networks:
+  rabbitmq_network:
+    driver: bridge
