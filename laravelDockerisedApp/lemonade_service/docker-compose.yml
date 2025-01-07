@@ -7,6 +7,9 @@ services:
       dockerfile: Dockerfile
     image: sample-laravel-app
     container_name: sample-laravel-app
+    command: |
+        php artisan migrate:rollback
+        php artisan migrate
     ports:
       - "9000:9000"
     volumes:
