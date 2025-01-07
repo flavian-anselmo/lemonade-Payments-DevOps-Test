@@ -1,4 +1,12 @@
 # RABBITMQ EXPORTER 
+The exporter's scraping intervals are managed by Prometheus, not configured within the exporter itself. Ensure that the scrape intervals are properly set in the Prometheus configuration. This design allows the exporter to remain idle when not in use, becoming active only when Prometheus accesses the /metrics endpoint.
+
+```bash
+ - job_name: rabbitmq-exporter
+   static_configs:
+    - targets: ['rabbitmq-exporter:9125']
+   scrape_interval: 30s
+```
 
 ## Metric Overview
 
@@ -132,11 +140,20 @@ groups:
 ```
 ## How to run the exporter using docker 
 
+
+
 ```bash 
 docker compose build 
 
 docker compose up -d 
 ```
+To get the current metrics take the service url and curl it or paste on the browser like so 
+
+```bash
+http://localhost:9125/metrics
+
+```
+
 
 ## To simulate RabbitMq scripts, I created a script to create queues and messages 
 Below are the queues to be created 
