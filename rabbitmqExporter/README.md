@@ -130,7 +130,13 @@ groups:
     annotations:
       summary: High number of unacknowledged messages
 ```
+## How to run the exporter using docker 
 
+```bash 
+docker compose build 
+
+docker compose up -d 
+```
 
 ### Performance Optimization
 - Monitor consumer utilization
