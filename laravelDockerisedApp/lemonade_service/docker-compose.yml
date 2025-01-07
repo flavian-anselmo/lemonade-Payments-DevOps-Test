@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  lemonade:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sample-laravel-app
+    container_name: sample-laravel-app
+    ports:
+      - "9000:9000"
+    volumes:
+      - .:/var/www
+    networks:
+      - laravel
+
+  webserver:
+    image: nginx:stable
+    container_name: sample-laravel-nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www
+      - ./nginx:/etc/nginx/conf.d
+    networks:
+      - laravel
+    depends_on:
+      - lemonade
+
+  db:
+    image: mysql:8.0
+    container_name: sample-laravel-db
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - laravel
+
+networks:
+  laravel:
+    driver: bridge
