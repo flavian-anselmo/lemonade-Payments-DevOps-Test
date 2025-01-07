@@ -1,0 +1,128 @@
+# RABBITMQ EXPORTER 
+
+## Metric Overview
+
+### Total Messages in Queue
+```python
+messages = Gauge(
+    'rabbitmq_individual_queue_messages',
+    'Total number of messages in queue',
+    ['host', 'vhost', 'name']
+)
+```
+
+### Ready Messages in Queue
+```python
+messages_ready = Gauge(
+    'rabbitmq_individual_queue_messages_ready',
+    'Total number of messages ready in queue',
+    ['host', 'vhost', 'name']
+)
+```
+
+### Unacknowledged Messages in Queue
+```python
+messages_unacknowledged = Gauge(
+    'rabbitmq_individual_queue_messages_unacknowledged',
+    'Total number of messages unacknowledged in queue',
+    ['host', 'vhost', 'name']
+)
+```
+
+## Label Descriptions
+
+Each metric uses three labels for precise queue identification:
+
+**host**
+- Description: RabbitMQ node hostname
+- Example: `rabbitmq-prod-01`
+
+**vhost**
+- Description: Virtual host name
+- Example: `/` or `my-vhost`
+
+**name**
+- Description: Queue name
+- Example: `orders-queue`
+
+## Common Queries
+
+### Basic Queue Monitoring
+```promql
+# Get total messages for specific queue
+rabbitmq_individual_queue_messages{name="orders-queue"}
+
+# Get unacknowledged messages rate
+rate(rabbitmq_individual_queue_messages_unacknowledged{name="orders-queue"}[5m])
+```
+
+## Setup  .conf file 
+```bash
+[exporter]
+EXPORTER_PORT=9125
+
+[rabbitmq]
+RABBITMQ_HOST=rabbitmq
+RABBITMQ_USER=admin
+RABBITMQ_PASSWORD=password123
+RABBITMQ_API_PORT=15672
+
+```
+
+
+## How to configure Prometheus to Allow Periodic Monitoring 
+```bash
+global:
+  scrape_interval: 10s
+scrape_configs:
+ - job_name: prometheus
+   static_configs:
+    - targets:
+       - prometheus:9090
+
+ - job_name: rabbitmq
+   static_configs:
+    - targets: ['rabbitmq-exporter:9125']
+   scrape_interval: 30s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
+rule_files:
+  - '/etc/prometheus/rules.yml'
+```
+
+
+## Alerting Configuration
+
+```yaml
+# Example alert rules
+groups:
+- name: RabbitMQ Queue Alerts
+  rules:
+  - alert: QueueBacklogGrowing
+    expr: rate(rabbitmq_individual_queue_messages[5m]) > 0.5
+    for: 10m
+    labels:
+      severity: warning
+    annotations:
+      summary: Queue backlog increasing
+      
+  - alert: HighUnackedMessages
+    expr: rabbitmq_individual_queue_messages_unacknowledged > 1000
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: High number of unacknowledged messages
+```
+
+
+### Performance Optimization
+- Monitor consumer utilization
+- Track message age in queue
+
+
+
+
