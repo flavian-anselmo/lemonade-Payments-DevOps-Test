@@ -47,13 +47,26 @@ Each metric uses three labels for precise queue identification:
 
 ## Common Queries
 
-### Basic Queue Monitoring
+### Basic Queue Monitoring Example
 ```promql
-# Get total messages for specific queue
-rabbitmq_individual_queue_messages{name="orders-queue"}
-
-# Get unacknowledged messages rate
-rate(rabbitmq_individual_queue_messages_unacknowledged{name="orders-queue"}[5m])
+# HELP rabbitmq_individual_queue_messages Total number of messages in queue
+# TYPE rabbitmq_individual_queue_messages gauge
+rabbitmq_individual_queue_messages{host="rabbitmq",name="email_queue",vhost="/"} 2400.0
+rabbitmq_individual_queue_messages{host="rabbitmq",name="notifications_queue",vhost="/"} 1600.0
+rabbitmq_individual_queue_messages{host="rabbitmq",name="orders_queue",vhost="/"} 3200.0
+rabbitmq_individual_queue_messages{host="rabbitmq",name="unacked_queue",vhost="/"} 800.0
+# HELP rabbitmq_individual_queue_messages_ready Total number of messages ready in queue
+# TYPE rabbitmq_individual_queue_messages_ready gauge
+rabbitmq_individual_queue_messages_ready{host="rabbitmq",name="email_queue",vhost="/"} 2400.0
+rabbitmq_individual_queue_messages_ready{host="rabbitmq",name="notifications_queue",vhost="/"} 1600.0
+rabbitmq_individual_queue_messages_ready{host="rabbitmq",name="orders_queue",vhost="/"} 3200.0
+rabbitmq_individual_queue_messages_ready{host="rabbitmq",name="unacked_queue",vhost="/"} 0.0
+# HELP rabbitmq_individual_queue_messages_unacknowledged Total number of messages unacknowledged in queue
+# TYPE rabbitmq_individual_queue_messages_unacknowledged gauge
+rabbitmq_individual_queue_messages_unacknowledged{host="rabbitmq",name="email_queue",vhost="/"} 0.0
+rabbitmq_individual_queue_messages_unacknowledged{host="rabbitmq",name="notifications_queue",vhost="/"} 0.0
+rabbitmq_individual_queue_messages_unacknowledged{host="rabbitmq",name="orders_queue",vhost="/"} 0.0
+rabbitmq_individual_queue_messages_unacknowledged{host="rabbitmq",name="unacked_queue",vhost="/"} 800.0
 ```
 
 ## Setup  .conf file 
