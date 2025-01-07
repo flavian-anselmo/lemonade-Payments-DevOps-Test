@@ -138,6 +138,16 @@ docker compose build
 docker compose up -d 
 ```
 
+## To simulate RabbitMq scripts, I created a script to create queues and messages 
+Below are the queues to be created 
+```bash
+ queues = [
+        {"name": "orders_queue", "messages": 100},
+        {"name": "notifications_queue", "messages": 50},
+        {"name": "email_queue", "messages": 75}
+    ]
+```
+
 ### Performance Optimization
 - Monitor consumer utilization
 - Track message age in queue
